@@ -78,7 +78,10 @@
 - 2 роли:
     - функции абонента: авторизация по номеру телефона, пополнение счета; 
     - функции менеджера: авторизация по логину и паролю, смена тарифа абонента, создание нового абонента (баланс по умолчанию - 100 у.е.)
-    ![Методы и роли](https://clck.ru/3Ab55X)
+      
+    ![Методы и роли](https://sun9-33.userapi.com/impg/LLHnJSc8ME5AccxPtqpyVid1EWoKjlc0kdnujQ/YftLs9CqofY.jpg?size=954x270&quality=96&sign=7df83c11368d1012d7327147950fc3f7&type=album&clckid=ac6272e1)
+  
 - Диаграмма вариантов использования сервиса:
+  
     ![Use Case Diagram](./UML/UseCase_CRM.png)
 
