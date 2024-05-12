@@ -1,0 +1,71 @@
+@startuml Activity
+
+skinparam Activity{
+    BackgroundColor Lavender 
+    ArrowColor DarkSlateGrey
+    StartColor DarkSlateGrey
+    StopColor DarkSlateGrey
+    EndColor DarkSlateGrey
+    BorderColor DarkSlateGrey
+    BorderThickness 1
+    FontColor DarkSlateGrey
+    FontSize 14
+}
+
+start
+
+#Thistle :Отправка запроса на\nсоздание абонента;
+if (Валидация) then (Данные некорректны)
+    :Отправка сообщения\nоб ошибке менеджеру;
+    end
+else (Данные корректны)
+    :Отправка запроса на\nсоздание абонента в BRT;
+    skinparam ActivityDiamondBackgroundColor LightSteelBlue
+    if (Валидация) then (Данные некорректны)
+        #LightSteelBlue :Логирование ошибки;
+        #LightSteelBlue :Отправка сообщения\nоб ошибке в CRM;
+        :Отправка сообщения\nоб ошибке менеджеру;
+        end
+    else (Данные корректны)
+        #LightSteelBlue :Отправка запроса\nна получение данных\nо тарифе в HRS;
+        skinparam ActivityDiamondBackgroundColor LightGreen
+        switch (Тип тарифа) 
+        case (Классика)
+            #LightGreen :Отправка пустого\nсообщения;
+        case (Тариф не существует)
+            #LightGreen :Логирование ошибки;
+            #LightGreen :Отправка сообщения об ошибке в BRT;
+            #LightSteelBlue :Отправка сообщения\nоб ошибке в CRM;
+            :Отправка сообщения\nоб ошибке менеджеру;
+            end
+        case (Помесячный)
+            #LightGreen :Отправка информации\nо тарифе;
+        endswitch
+        skinparam ActivityDiamondBackgroundColor LightSteelBlue
+        if (Валидация) then (Данные некорректны)
+            #LightSteelBlue :Логирование ошибки;
+            #LightSteelBlue :Отправка сообщения\nоб ошибке в CRM;
+            :Отправка сообщения\nоб ошибке менеджеру;
+            end
+        else (Данные корректны)
+            #LightSteelBlue :Создание абонента;
+            if (Тип тарифа) then (Помесячный)
+                #LightSteelBlue :Начисление минут;
+            else (Классика)
+            endif
+            #LightSteelBlue :Передача данных об\nабоненте в CRM;
+            skinparam ActivityDiamondBackgroundColor Lavender
+            if (Валидация) then (Данные некорректны)
+                :Логирование ошибки;
+                :Передача сообщения\nоб ошибке менеджеру;
+                end 
+            else (Данные корректны)
+                :Передача данных об\nабоненте менеджеру;
+            endif
+        endif
+    endif
+endif
+
+stop
+
+@enduml

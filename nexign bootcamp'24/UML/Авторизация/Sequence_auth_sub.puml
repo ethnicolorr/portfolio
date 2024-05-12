@@ -1,0 +1,24 @@
+@startuml sequence 
+
+actor       sub  as "Абонент"
+participant crm  as "CRM"
+participant brt  as "BRT"
+
+autonumber
+
+sub -> crm ++ : Запросить авторизацию\nPOST /subscribers/login
+crm -> brt ++ : Запросить идентификацию\nабонента\nPOST /subscribers/login
+brt -> brt ++ : Идентифицировать\nабонента
+brt --> brt -- : Результат идентификации
+alt Абонент отсутствует в БД
+    brt --> crm : 401 Unauthorized
+    crm --> sub : 401 Unauthorized
+    else Абонент присутствует в БД
+    brt --> crm -- : 200 OK
+    crm -> crm ++ : Формирование JWT
+    crm --> crm -- : JWT
+    crm --> sub -- : 200 OK
+end
+
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml sequence 
+
+actor       man  as "Менеджер"
+participant crm  as "CRM"
+participant brt  as "BRT"
+participant hrs  as "HRS"
+
+autonumber
+
+man -> crm ++ : Запросить смену тарифа\nPATCH /subscribers/{msisdn}/changeTariff
+crm -> crm ++ : Проверка токена
+crm --> crm -- : Результат проверки
+alt Токен недействителен
+    crm --> man : 401 Unauthorized
+else Нет прав совершать операцию
+    crm --> man : 403 Forbidden
+else Токен действителен и принадлежит менеджеру
+    crm -> brt ++ : Запросить смену тарифа абонента\nPATCH /subscribers/{msisdn}/changeTariff
+    brt -> hrs ++ : Запросить информацию о тарифах\nGET /tariffs?type=monthly\n&id={currentTariffId}&id={futureTariffId}
+    hrs --> brt -- : 200 OK + информация о\nпомесячных тарифах
+    brt -> brt ++ : Смена тарифа
+    alt Предыдущий тариф был помесячным
+        brt -> brt : Списание абонентской платы\nи минут со счёта
+    else Будущий тариф является помесячным
+        brt -> brt : Начисление минут\nпо тарифу на счёт
+    end
+    brt --> brt -- : Информация об\nабоненте обновлена
+    brt --> crm -- : 200 OK + информация\nоб абоненте
+    crm --> man -- : 200 OK + информация\nоб абоненте
+end
+
+@enduml

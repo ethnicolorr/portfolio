@@ -1,0 +1,22 @@
+@startuml usecase
+
+left to right direction
+
+actor manager   as "Менеджер" 
+actor sub       as "Абонент"  
+
+rectangle CRM {
+    (UC-2.2 Авторизация\nпо логину и паролю)   as uc2_2
+    (UC-2.1 Авторизация\nпо номеру телефона)   as uc2_1 
+    (UC-5 Создание абонента)                    as uc5
+    (UC-4 Смена тарифа\nабонента)               as uc4
+    (UC-3 Пополнение баланса)                   as uc3
+}
+
+manager -- uc2_2
+sub -- uc2_1
+manager -- uc5 
+manager -- uc4
+sub -- uc3 
+
+@enduml

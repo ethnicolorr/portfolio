@@ -1,0 +1,43 @@
+@startuml Activity
+
+skinparam Activity{
+    BackgroundColor Lavender 
+    ArrowColor DarkSlateGrey
+    StartColor DarkSlateGrey
+    StopColor DarkSlateGrey
+    EndColor DarkSlateGrey
+    BorderColor DarkSlateGrey
+    BorderThickness 1
+    FontColor DarkSlateGrey
+    FontSize 14
+}
+
+start
+
+#Thistle :Отправка запроса на\nпополнение счёта;
+if (Валидация) then (Данные некорректны)
+    :Отправка сообщения\nоб ошибке абоненту;
+    end
+else (Данные корректны)
+    :Отправка запроса на\nпополнение счёта в BRT;
+    skinparam ActivityDiamondBackgroundColor LightSteelBlue
+    if (Валидация) then (Данные некорректны)
+        #LightSteelBlue :Отправка сообщения\nоб ошибке в CRM;
+        :Отправка сообщения\nоб ошибке абоненту;
+        end
+    else (Данные корректны)
+        #LightSteelBlue :Обновление баланса\nабонента;
+        #LightSteelBlue :Отправка обновлённых\nданных в CRM;
+        skinparam ActivityDiamondBackgroundColor Lavender
+        if (Валидация) then (Данные некорректны)
+            :Отправка сообщения об ошибке абоненту;
+            end
+        else (Данные корректны)
+            :Отправка обновлённых\nданных абоненту;
+        endif
+    endif
+endif
+
+stop
+
+@enduml

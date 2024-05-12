@@ -1,0 +1,37 @@
+@startuml sequence 
+
+actor       man  as "Менеджер"
+participant crm  as "CRM"
+participant brt  as "BRT"
+participant hrs  as "HRS"
+
+autonumber
+
+man -> crm ++ : Запросить создание абонента\nPOST /subscribers/save
+crm -> crm ++ : Проверка токена
+crm --> crm -- : Результат проверки
+alt Токен недействителен
+    crm --> man : 401 Unauthorized
+else Нет прав совершать операцию
+    crm --> man : 403 Forbidden
+else Токен действителен и принадлежит менеджеру
+    crm -> brt ++ : Запросить создание абонента\nPOST /subscribers/save
+    brt -> hrs ++ : Запросить информацию о тарифе\nGET /tariffs?type=monthly?id={tariffId}
+    alt Тариф не существует
+        hrs --> brt : 404 Not Found
+        brt --> crm : 400 Bad Request
+        crm --> man : 400 Bad Request
+    else Тариф существует
+        hrs --> brt -- : 200 OK + информация о\nтарифе, если он помесячный
+        brt -> brt ++ : Создание абонента
+        opt Тариф помесячный
+            brt -> brt ++ : Начисление минут по тарифу
+            brt --> brt -- : Минуты начислены
+        end
+        brt --> brt -- : Абонент создан
+        brt --> crm -- : 200 OK + информация\nоб абоненте
+        crm --> man -- : 200 OK + информация\nоб абоненте
+    end
+end
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml sequence 
+
+actor       sub  as "Абонент"
+participant crm  as "CRM"
+participant brt  as "BRT"
+
+autonumber
+
+sub -> crm ++ : Запросить пополнение счёта\nPATCH /subscribers/pay
+crm -> crm ++ : Проверка токена
+crm --> crm -- : Результат проверки
+alt Токен недействителен
+    crm --> sub : 401 Unauthorized
+    else Нет прав совершать операцию
+    crm --> sub : 403 Forbidden
+    else Токен действителен и принадлежит абоненту
+    crm -> brt ++ : Запросить пополнение счёта абонента\nPATCH /subscribers/pay
+    brt -> brt ++ : Обновление баланса абонента
+    brt --> brt -- : Баланс обновлён
+    brt --> crm -- : 200 OK
+    crm --> sub -- : 200 OK
+end
+
+@enduml

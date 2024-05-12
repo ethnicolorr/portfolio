@@ -1,0 +1,77 @@
+@startuml Activity
+
+skinparam Activity{
+    BackgroundColor Thistle 
+    ArrowColor DarkSlateGrey
+    StartColor DarkSlateGrey
+    StopColor DarkSlateGrey
+    EndColor DarkSlateGrey
+    BorderColor DarkSlateGrey
+    BorderThickness 1
+    FontColor DarkSlateGrey
+    FontSize 14
+}
+
+start
+
+#Lavender :Генерация записей;
+#Lavender :Передача файла в BRT;
+
+skinparam ActivityDiamondBackgroundColor LightSteelBlue
+if (Валидация) then (Данные некорректны) 
+    #LightSteelBlue :Логирование ошибки;
+    end 
+else (Данные корректны)
+    repeat 
+    if (Авторизация абонента) then (Абонент оператора\n"Ромашка")
+        #LightSteelBlue :Дополнение данных о вызове;
+        #LightSteelBlue :Передача объекта в HRS;
+
+        skinparam ActivityDiamondBackgroundColor Thistle
+        if (Валидация) then (Данные некорректны)
+            :Логирование ошибки;
+        else (Данные корректны)
+            :Расчёт длительности звонка;
+            if (Определение тарифа абонента) then (Помесячный)
+                if (Длительность звонка?) then (> Остаток)
+                    :К-во минут = Остаток;
+                    if (Тип звонка?) then (Входящий)
+                        :Сумма списания = 0;
+                    else (Исходящий)
+                        if (Кому был\nсовершён звонок?) then (Абоненту "Ромашки")
+                            :Сумма списания =\n(Остаток -\nДлительность) * 1.5;
+                        else (Абоненту другого\nоператора)
+                            :Сумма списания =\n(Остаток -\nДлительность) * 2.5;
+                        endif
+                    endif
+                else (< Остаток) 
+                :К-во минут = Длительность;
+                endif
+            else (Классика)
+                if (Тип звонка?) then (Входящий)
+                    :Сумма списания = 0; 
+                else (Исходящий)
+                    if (Звонок абоненту "Ромашки"?) then (Да)
+                        :Сумма списания = \nДлительность * 1.5;
+                    else (Нет)
+                        :Сумма списания = \nДлительность * 2.5;
+                    endif
+                endif
+            endif 
+            :Формирование сообщения;
+            :Отправка данных в BRT;
+
+            skinparam ActivityDiamondBackgroundColor LightSteelBlue
+            if (Валидация) then (Данные некорректны)
+                #LightSteelBlue :Логирование ошибки;
+            else (Данные корректны)
+                #LightSteelBlue :Списание средств;
+            endif
+        endif
+    else (Абонента нет в базе)
+    endif
+    repeat while (Сколько осталось\nзаписей?) is (> 0) not (0)
+endif
+stop
+
+@enduml

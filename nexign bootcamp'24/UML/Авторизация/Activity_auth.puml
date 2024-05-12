@@ -1,0 +1,56 @@
+@startuml Activity
+
+skinparam Activity{
+    BackgroundColor Lavender 
+    ArrowColor DarkSlateGrey
+    StartColor DarkSlateGrey
+    StopColor DarkSlateGrey
+    EndColor DarkSlateGrey
+    BorderColor DarkSlateGrey
+    BorderThickness 1
+    FontColor DarkSlateGrey
+    FontSize 14
+}
+
+start
+
+#Thistle :Отправка запроса на авторизацию;
+if (Валидация) then (Данные некорректны)
+    :Отправка сообщения об ошибке;
+    end
+else (Данные корректны)
+    if (Путь запроса) then (/subscribers/login)
+        :Отправка запроса\nна идентификацию в BRT;
+        skinparam ActivityDiamondBackgroundColor LightSteelBlue
+        if (Валидация) then (Данные некорректны)
+            #LightSteelBlue :Отправка сообщения\nоб ошибке в CRM;
+            :Отправка сообщения\nоб ошибке абоненту;
+            end
+        else (Данные корректны)
+            #LightSteelBlue :Идентификация абонента;
+            if (Результат идентификации) then (Абонент не найден)
+                #LightSteelBlue :Отправка сообщения\nоб ошибке в CRM;
+                :Отправка сообщения\nоб ошибке абоненту;
+                end 
+            else (Абонент существует)
+                #LightSteelBlue :Отправка сообщения\nоб успехе операции в CRM;
+                :Формирование JWT;
+                :Отправка JWT абоненту;
+            endif
+        endif
+    else (/managers/login)
+        :Аутентификация менеджера;
+        skinparam ActivityDiamondBackgroundColor Lavender
+        if (Результат аутентификации) then (Данные некорректны)
+            :Отправка сообщения\nоб ошибке менеджеру;
+            end
+        else (Данные подлинны)
+            :Формирование JWT;
+            :Отправка JWT менеджеру;
+        endif
+    endif
+endif
+
+stop
+
+@enduml

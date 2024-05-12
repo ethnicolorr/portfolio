@@ -1,0 +1,60 @@
+@startuml Activity
+
+skinparam Activity{
+    BackgroundColor Lavender 
+    ArrowColor DarkSlateGrey
+    StartColor DarkSlateGrey
+    StopColor DarkSlateGrey
+    EndColor DarkSlateGrey
+    BorderColor DarkSlateGrey
+    BorderThickness 1
+    FontColor DarkSlateGrey
+    FontSize 14
+}
+
+start
+
+#Thistle :Отправка запроса на\nсмену тарифа;
+if (Валидация) then (Данные некорректны)
+    :Отправка сообщения\nоб ошибке менеджеру;
+    end
+else (Данные корректны)
+    :Отправка запроса на\nсмену тарифа в BRT;
+    skinparam ActivityDiamondBackgroundColor LightSteelBlue
+    if (Валидация) then (Данные некорректны)
+        #LightSteelBlue :Логирование ошибки;
+        #LightSteelBlue :Отправка сообщения\nоб ошибке в CRM;
+        :Отправка сообщения\nоб ошибке менеджеру;
+        end
+    else (Данные корректны)
+        #LightSteelBlue :Отправка запроса\nна получение данных\nо тарифах в HRS;
+        #LightGreen :Отправка информации\nо помесячных тарифах;
+        if (Валидация) then (Данные некорректны)
+            #LightSteelBlue :Логирование ошибки;
+            #LightSteelBlue :Отправка сообщения\nоб ошибке в CRM;
+            :Отправка сообщения\nоб ошибке менеджеру;
+            end
+        else (Данные корректны)
+            if (Проверка тарифа) then (Предыдущий тариф\nбыл помесячным)
+                #LightSteelBlue :Списание абонентской\nплаты со счёта;
+                #LightSteelBlue :Списание минут\nсо счёта;
+            else (Будущий тариф\nявляется помесячным)
+                #LightSteelBlue :Начисление минут\nна счёт;
+            endif
+            #LightSteelBlue :Смена тарифа;
+            #LightSteelBlue :Передача обновлённых\nданных в CRM;
+            skinparam ActivityDiamondBackgroundColor Lavender
+            if (Валидация) then (Данные некорректны)
+                :Логирование ошибки;
+                :Передача сообщения\nоб ошибке менеджеру;
+                end 
+            else (Данные корректны)
+                :Передача обновлённых\nданных менеджеру;
+            endif
+        endif
+    endif
+endif
+
+stop
+
+@enduml
